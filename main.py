@@ -1,15 +1,88 @@
 from pytrends.request import TrendReq
 from flask import Flask
 from datetime import datetime
-
+import time
+import collections
 app = Flask(__name__)
+
+
+
+def log_execution_time(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Execution time of {func.__name__}: {execution_time} seconds")
+        return result
+    return wrapper
+
+@log_execution_time
+def foo():
+    # function code goes here
+    time.sleep(1)
+
+foo()
+
+
+
+def count_words_dict(text):
+    word_count = {}
+    for word in text.split():
+        if word in word_count:
+            word_count[word] += 1
+        else:
+            word_count[word] = 1
+    return word_count
+
+def count_words_counter(text):
+    words = text.split()
+  
+  # Utilisez la fonction Counter pour compter le nombre d'apparitions de chaque mot
+    word_counts = collections.Counter(words)
+  
+  # Renvoyez le dictionnaire des comptes de mots
+    return word_counts
+   # return collections.Counter(text.split())
+
+with open('t8.shakespeare.txt', 'r') as f:
+
+  text = f.read()
+
+text2="ok ok ok ok ok"
+
+def measure_time(func1, func2, text):
+  # Mesurez le temps d'exécution de la première fonction
+  start = time.time()
+  func1(text)
+  end = time.time()
+  time1 = end - start
+  
+  # Mesurez le temps d'exécution de la deuxième fonction
+  start = time.time()
+  func2(text)
+  end = time.time()
+  time2 = end - start
+  
+  # Affichez les temps d'exécution des deux fonctions
+  print(f'Function 1 took {time1:.6f} seconds')
+  print(f'Function 2 took {time2:.6f} seconds')
+
+
+measure_time(count_words_dict, count_words_counter, text)
+
+
+
+
+
+
 
 
 @app.route('/trend', methods=["GET"])
 def trend():
 
     pytrends = TrendReq(hl='en-US', tz=360)
-    kw_list=['avatar','inception']
+    kw_list=['avatar','streaming']
     pytrends.build_payload(kw_list, timeframe='2022-01-09 2023-01-01', geo='US')
     df = pytrends.interest_over_time()
     avatar_data = df['avatar'].values.tolist()
@@ -28,13 +101,13 @@ def trend():
                 "datasets": [{
                     "label": 'Avatar',
                     "data": avatar_data,
-                    "borderColor": '#3e95cd',
+                    "borderColor": '#ff0000',
                     "fill": 'false',
                 },
                 {
                     "label": 'Inception',
                     "data": inception_data,
-                    "borderColor": '#ffce56',
+                    "borderColor": '#00ff00',
                     "fill": 'false',
                 }
                 ]
